@@ -89,11 +89,9 @@ class Board:
 
         sqr = self.squares[row][col]
 
-        # base case
         if not isinstance(sqr, Board):
             return sqr == 0 and self.active
 
-        # recursive step
         return sqr.valid_sqr(xclick, yclick)
 
     def mark_sqr(self, xclick, yclick, player):
@@ -107,12 +105,10 @@ class Board:
 
         print('marking -> (', row, col, ')')
 
-        # base case
         if not isinstance(sqr, Board):
             self.squares[row][col] = player
             return
 
-        # recursive step
         sqr.mark_sqr(xclick, yclick, player)
 
     def draw_fig(self, surface, xclick, yclick):
@@ -124,26 +120,21 @@ class Board:
 
         sqr = self.squares[row][col]
 
-        # base case
         if not isinstance(sqr, Board):
 
-            # cross
             if sqr == 1:
-                # desc line
                 ipos = (self.dims.xcor + (col * self.dims.sqsize) + self.offset, 
                         self.dims.ycor + (row * self.dims.sqsize) + self.offset)
                 fpos = (self.dims.xcor + self.dims.sqsize * (1 + col) - self.offset, 
                         self.dims.ycor + self.dims.sqsize * (1 + row) - self.offset)
                 pygame.draw.line(surface, CROSS_COLOR, ipos, fpos, self.linewidth)
 
-                # asc line
                 ipos = (self.dims.xcor + (col * self.dims.sqsize) + self.offset, 
                         self.dims.ycor + self.dims.sqsize * (1 + row) - self.offset)
                 fpos = (self.dims.xcor + self.dims.sqsize * (1 + col) - self.offset, 
                         self.dims.ycor + (row * self.dims.sqsize) + self.offset)
                 pygame.draw.line(surface, CROSS_COLOR, ipos, fpos, self.linewidth)
             
-            # circle
             elif sqr == 2:
                 center = (self.dims.xcor + self.dims.sqsize * (0.5 + col),
                           self.dims.ycor + self.dims.sqsize * (0.5 + row))
@@ -152,11 +143,9 @@ class Board:
 
             return
 
-        # recursive step
         sqr.draw_fig(surface, xclick, yclick)
 
     def manage_win(self, surface, winner, onmain=False):
-        # transparent screen
         transparent = pygame.Surface( (self.dims.size, self.dims.size) )
         transparent.set_alpha( ALPHA )
         transparent.fill( FADE )
@@ -165,32 +154,26 @@ class Board:
             surface.blit(transparent, (self.dims.xcor, self.dims.ycor))
         surface.blit(transparent, (self.dims.xcor, self.dims.ycor))
         
-        # draw win
         if not onmain:
-            # cross
             if winner == 1:
-                # desc line
                 ipos = (self.dims.xcor + self.offset, 
                         self.dims.ycor + self.offset)
                 fpos = (self.dims.xcor + self.dims.size - self.offset, 
                         self.dims.ycor + self.dims.size - self.offset)
                 pygame.draw.line(surface, CROSS_COLOR, ipos, fpos, self.linewidth + 7)
 
-                # asc line
                 ipos = (self.dims.xcor + self.offset, 
                         self.dims.ycor + self.dims.size - self.offset)
                 fpos = (self.dims.xcor + self.dims.size - self.offset, 
                         self.dims.ycor + self.offset)
                 pygame.draw.line(surface, CROSS_COLOR, ipos, fpos, self.linewidth + 7)
 
-            # circle
             if winner == 2:
                 center = (self.dims.xcor + self.dims.size * 0.5,
                         self.dims.ycor + self.dims.size * 0.5)
 
                 pygame.draw.circle(surface, CIRCLE_COLOR, center, self.dims.size * 0.4, self.linewidth + 7)
 
-        # inactive board
         self.active = False
 
     def check_draw_win(self, surface,):
@@ -199,23 +182,20 @@ class Board:
 
         for row in range(DIM):
             for col in range(DIM):
-
-                # base case sqr should have numbers                    
+                  
                 sqr = self.squares[row][col]
 
                 if isinstance(sqr, Board) and sqr.active:
-                    # other board win
                     winner = sqr.check_draw_win(surface)
-                    if winner: # recursive step
+                    if winner: 
                         self.squares[row][col] = winner
                         sqr.manage_win(surface, winner)
 
-                # main
-                # vertical wins
+
                 for c in range(DIM):
                     if self.squares[0][c] == self.squares[1][c] == self.squares[2][c] != 0:
                         color = CROSS_COLOR if self.squares[0][c] == 1 else CIRCLE_COLOR
-                        # draw win
+
                         ipos = (self.dims.xcor + self.dims.sqsize * (0.5 + c), 
                                 self.dims.ycor + self.offset)
                         fpos = (self.dims.xcor + self.dims.sqsize * (0.5 + c), 
@@ -224,11 +204,11 @@ class Board:
 
                         return self.squares[0][c]
 
-                # horizontal wins
+
                 for r in range(DIM):
                     if self.squares[r][0] == self.squares[r][1] == self.squares[r][2] != 0:
                         color = CROSS_COLOR if self.squares[r][0] == 1 else CIRCLE_COLOR
-                        # draw win
+
                         ipos = (self.dims.xcor + self.offset, 
                                 self.dims.ycor + self.dims.sqsize * (r + 0.5))
                         fpos = (self.dims.xcor + self.dims.size - self.offset, 
@@ -237,11 +217,10 @@ class Board:
 
                         return self.squares[r][0]
 
-                # diagonal wins
-                # desc
+
                 if self.squares[0][0] == self.squares[1][1] == self.squares[2][2] != 0:
                     color = CROSS_COLOR if self.squares[1][1] == 1 else CIRCLE_COLOR
-                    # draw win
+
                     ipos = (self.dims.xcor + self.offset, 
                             self.dims.ycor + self.offset)
                     fpos = (self.dims.xcor + self.dims.size - self.offset, 
@@ -250,10 +229,10 @@ class Board:
 
                     return self.squares[1][1]
 
-                # asc
+
                 if self.squares[2][0] == self.squares[1][1] == self.squares[0][2] != 0:
                     color = CROSS_COLOR if self.squares[1][1] == 1 else CIRCLE_COLOR
-                    # draw win
+
                     ipos = (self.dims.xcor + self.offset, 
                             self.dims.ycor + self.dims.size - self.offset)
                     fpos = (self.dims.xcor + self.dims.size - self.offset, 
@@ -284,19 +263,19 @@ class Game:
 
         if winner == 1:
             color = CROSS_COLOR
-            # desc
+
             iDesc = (WIDTH // 2 - 110, HEIGHT // 2 - 110)
             fDesc = (WIDTH // 2 + 110, HEIGHT // 2 + 110)
-            # asc
+
             iAsc = (WIDTH // 2 - 110, HEIGHT // 2 + 110)
             fAsc = (WIDTH // 2 + 110, HEIGHT // 2 - 110)
-            # draw
+
             pygame.draw.line(surface, color, iDesc, fDesc, 22)
             pygame.draw.line(surface, color, iAsc, fAsc, 22)
 
         else:
             color = CIRCLE_COLOR
-            # center
+
             center = (WIDTH // 2, HEIGHT // 2   )
             pygame.draw.circle(surface, color, center, WIDTH // 4, 22)
         
@@ -426,7 +405,7 @@ class StartMenu:
         self.screen = screen
         pygame.font.init()
         self.font = pygame.font.SysFont('monospace', 40)
-        self.menu_options = ["Start Game", "Customize", "Quit"]  # Added "Customize" option
+        self.menu_options = ["Start Game", "Customize", "Quit"] 
         self.selected_option = 0
 
     def draw_menu(self):
@@ -462,13 +441,13 @@ class LoginScreen:
         self.username = ""
         self.password = ""
         self.is_logging_in = True
-        self.username_selected = True  # Initialize the username as the selected field
-        self.password_selected = False  # Initialize the password as not selected
+        self.username_selected = True 
+        self.password_selected = False  
 
     def draw_login_screen(self):
         self.screen.fill(BG_COLOR)
 
-        # Draw login components (username and password fields, buttons, etc.)
+
         label_username = self.font.render(f"Username: {self.username}", 1, (255, 255, 255))
         label_password = self.font.render(f"Password: {len(self.password)*'*'}", 1, (255, 255, 255))
         self.screen.blit(label_username, (WIDTH // 2 - label_username.get_rect().width // 2, HEIGHT // 4))
@@ -484,17 +463,16 @@ class LoginScreen:
                         elif len(self.password) > 0 and self.password_selected:
                             self.password = self.password[:-1]
                     elif event.key == pygame.K_RETURN:
-                        # Add code to check login credentials and transition to the game screen if successful
-                        # Replace the following line with actual login logic
+
                         self.is_logging_in = False
                     elif event.key == pygame.K_ESCAPE:
                         self.is_logging_in = False
                     elif event.key == pygame.K_TAB:
-                        # Switch between username and password fields when the Tab key is pressed
+
                         self.username_selected = not self.username_selected
                         self.password_selected = not self.password_selected
                     elif event.unicode and (self.username_selected or self.password_selected):
-                        # Add the typed character to the appropriate field
+
                         if self.username_selected:
                             self.username += event.unicode
                         elif self.password_selected:
@@ -503,7 +481,7 @@ class LoginScreen:
             self.draw_login_screen()
             pygame.display.update()
 
-        # Return True if the user logged in successfully, otherwise return False
+
         return not self.is_logging_in
 
 
@@ -519,7 +497,7 @@ class Main:
         self.login_screen = LoginScreen(self.screen)
         self.start_menu = StartMenu(self.screen)
         self.game = None
-        self.logged_in = False  # Track whether the user is logged in
+        self.logged_in = False 
 
     def mainloop(self):
         while True:
@@ -584,13 +562,14 @@ class Main:
             pygame.display.update()
 
     def show_customize_menu(self):
-        global BG_COLOR  # Declare BG_COLOR as a global variable
+        global BG_COLOR  
 
         customize_menu = Menu()
         customize_menu.menu_options = ["Select Background Color", "Go Back"]
         customize_menu.selected_option = 0
 
-        selected_color = "Green"  # Default color
+        selected_color = "Green"  
+    
 
         while True:
             for event in pygame.event.get():
@@ -613,12 +592,12 @@ class Main:
                             elif selected_color == "Blue":
                                 BG_COLOR = (0, 0, 255)
 
-                            # Update background color and redraw the screen
+                            
                             self.screen.fill(BG_COLOR)
                             self.game.render_board(self.screen)
                             pygame.display.update()
 
-                        elif customize_option == 1:  # Go Back
+                        elif customize_option == 1:  
                             return
 
                 if event.type == pygame.QUIT:
